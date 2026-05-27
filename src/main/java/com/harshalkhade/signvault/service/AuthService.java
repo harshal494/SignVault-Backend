@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -61,7 +60,7 @@ public class AuthService {
                 .build();
 
         User savedUser = userRepository.save(user);
-        sendEmailotp(savedUser.getEmail());
+        sendEmailOtp(savedUser.getEmail());
 
         UserDetails userDetails = org.springframework.security.core.userdetails.User
                 .withUsername(savedUser.getEmail())
@@ -124,7 +123,7 @@ public class AuthService {
 
     }
 
-    public void sendEmailotp(String email) {
+    public void sendEmailOtp(String email) {
 
         log.info("Sending email OTP to: {}", email);
 
