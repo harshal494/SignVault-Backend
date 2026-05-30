@@ -33,12 +33,13 @@ public class Notification {
     private Contract contract;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "`type`")
     private NotificationType type;
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String message;
 
-    @Column(nullable = false, columnDefinition = "boolean default false")
+    @Column(name = "`read`", nullable = false, columnDefinition = "boolean default false")
     private boolean read;
 
     @Column(nullable = false, columnDefinition = "boolean default false")
