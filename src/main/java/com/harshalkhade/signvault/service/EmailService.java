@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -39,6 +40,7 @@ public class EmailService {
 
     }
 
+    @Async
     public void sendContractNotification(String to, String senderName, String contractTitle, String contractId) {
 
         try {
@@ -63,6 +65,7 @@ public class EmailService {
 
     }
 
+    @Async
     public void sendExpiryReminder(String to, String contractTitle, long daysLeft) {
 
         try {
