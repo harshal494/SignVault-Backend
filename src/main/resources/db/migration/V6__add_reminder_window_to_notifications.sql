@@ -1,0 +1,1 @@
+ALTER TABLE notifications ADD COLUMN reminder_window VARCHAR(50) NULL;

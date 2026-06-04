@@ -45,6 +45,8 @@ public class Notification {
     @Column(nullable = false, columnDefinition = "boolean default false")
     private boolean emailSent;
 
+    private String reminderWindow;
+
     @CreatedDate
     private LocalDateTime createdAt;
 }
