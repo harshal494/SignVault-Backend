@@ -60,6 +60,7 @@ public class Contract {
 
     private boolean renewal;
     private boolean renewalDone;
+    private boolean flagged;
 
 
     private LocalDateTime expiresAt;
