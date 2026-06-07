@@ -1,5 +1,6 @@
 package com.harshalkhade.signvault.service;
 
+import com.harshalkhade.signvault.dto.response.AuditLogResponse;
 import com.harshalkhade.signvault.dto.response.ContractResponse;
 import com.harshalkhade.signvault.dto.response.UserResponse;
 import com.harshalkhade.signvault.entity.AuditLog;
@@ -154,9 +155,14 @@ public class AdminService {
         return mapToContractResponse(contract);
     }
 
-    public List<AuditLog> getAuditLogs() {
+    public List<AuditLogResponse> getAuditLogs() {
         log.info("Admin fetching all audit logs.");
-        return auditLogRepository.findAll();
+        List<AuditLogResponse> logs = auditLogRepository.findAll()
+                .stream()
+                .map(this::mapToAuditLogResponse)
+                .collect(Collectors.toList());
+        return logs;
+
     }
 
     private UserResponse mapToUserResponse(User user) {
@@ -194,6 +200,21 @@ public class AdminService {
                 .parentContractId(contract.getParentContract() != null ? contract.getParentContract().getContractId() : null)
                 .expiresAt(contract.getExpiresAt())
                 .createdAt(contract.getCreatedAt())
+                .build();
+    }
+
+    private AuditLogResponse mapToAuditLogResponse(AuditLog auditLog) {
+        return AuditLogResponse.builder()
+                .id(auditLog.getId())
+                .action(auditLog.getAction())
+                .ipAddress(auditLog.getIpAddress())
+                .createdAt(auditLog.getCreatedAt())
+                .contractId(auditLog.getContract().getContractId())
+                .contractTitle(auditLog.getContract().getTitle())
+                .userId(auditLog.getUser().getId())
+                .userFullname(auditLog.getUser().getFullName())
+                .userEmail(auditLog.getUser().getEmail())
+                .userRole(auditLog.getUser().getRole())
                 .build();
     }
 }

@@ -161,8 +161,53 @@ public class ContractService {
     public VerifyContractResponse verifyContract(String contractId ) {
         Contract contract = contractRepository.findByContractId(contractId)
                 .orElseThrow(() -> new ResourceNotFoundException("Contract not found"));
+        if (contract.getStatus().equals(ContractStatus.CANCELLED)) {
+            throw new ResourceNotFoundException("Contract not found");
+        }
 
         return mapToVerifyResponse(contract);
+    }
+
+    public ContractResponse cancelContract(String contractId, String email, String ipAddress) {
+        Contract contract = contractRepository.findByContractId(contractId)
+                .orElseThrow(() -> new ResourceNotFoundException("Contract not found"));
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        if (!user.getEmail().equals(contract.getSender().getEmail())) {
+            throw new UnauthorizedException("Only the sender can cancel contract");
+        }
+        if (!contract.getStatus().equals(ContractStatus.PENDING)) {
+            throw new ContractException("Contract can only be cancelled when it is pending");
+        }
+        contract.setStatus(ContractStatus.CANCELLED);
+        contractRepository.save(contract);
+
+        auditLogService.log(contract, user, "CONTRACT_CANCELLED", ipAddress);
+        notificationService.createNotification(contract.getReceiver(), contract, NotificationType.CONTRACT_CANCELLED, "The contract sent to you has been cancelled by the sender.");
+        emailService.sendContractNotification(contract.getReceiver().getEmail(), contract.getReceiver().getFullName(), contract.getTitle(), contractId);
+        log.info("Contract notification has beem sent to receiver: {}", contract.getReceiver().getEmail());
+        return mapToResponse(contract);
+    }
+
+    public ContractResponse rejectContract(String contractId, String email, String ipAddress) {
+        Contract contract = contractRepository.findByContractId(contractId)
+                .orElseThrow(() -> new ResourceNotFoundException("Contract not found"));
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        if (!user.getEmail().equals(contract.getReceiver().getEmail())){
+            throw new UnauthorizedException("You are not authorized to view this contract");
+        }
+        if (contract.getStatus() != ContractStatus.PENDING && contract.getStatus() != ContractStatus.SENDER_SIGNED) {
+            throw new ContractException("Contract cannot be rejected at this stage");
+        }
+        contract.setStatus(ContractStatus.REJECTED);
+
+        contractRepository.save(contract);
+        auditLogService.log(contract, user, "CONTRACT_REJECTED", ipAddress);
+        notificationService.createNotification(contract.getSender(), contract, NotificationType.CONTRACT_REJECTED, "Receiver rejected the contract.");
+        emailService.sendContractNotification(contract.getSender().getEmail(), user.getFullName(), contract.getTitle(), contractId);
+        log.info("Contract notification has beem sent to sender: {}", contract.getSender().getEmail());
+        return mapToResponse(contract);
     }
 
 }

@@ -60,4 +60,22 @@ public class ContractController {
         VerifyContractResponse result = contractService.verifyContract(contractId);
         return ResponseEntity.ok(new ApiResponse(true, "Contract verified successfully", result));
     }
+
+    @PutMapping("/{contractId}/cancel")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<ApiResponse> cancelContract(@PathVariable String contractId, Authentication authentication, HttpServletRequest httpRequest) {
+        String email = authentication.getName();
+        log.info("Incoming request: cancelContract {} by {}", contractId, email);
+        ContractResponse result = contractService.cancelContract(contractId, email, httpRequest.getRemoteAddr());
+        return ResponseEntity.ok(new ApiResponse(true, "Contract cancelled successfully", result));
+    }
+
+    @PutMapping("/{contractId}/reject")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<ApiResponse> rejectContract(@PathVariable String contractId, Authentication authentication, HttpServletRequest httpRequest) {
+        String email = authentication.getName();
+        log.info("Incoming request: rejectContract {} by {}", contractId, email);
+        ContractResponse result = contractService.rejectContract(contractId, email, httpRequest.getRemoteAddr());
+        return ResponseEntity.ok(new ApiResponse(true, "Contract rejected successfully", result));
+    }
 }

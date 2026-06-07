@@ -1,9 +1,9 @@
 package com.harshalkhade.signvault.controller;
 
 import com.harshalkhade.signvault.dto.response.ApiResponse;
+import com.harshalkhade.signvault.dto.response.AuditLogResponse;
 import com.harshalkhade.signvault.dto.response.ContractResponse;
 import com.harshalkhade.signvault.dto.response.UserResponse;
-import com.harshalkhade.signvault.entity.AuditLog;
 import com.harshalkhade.signvault.service.AdminService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -117,7 +117,7 @@ public class AdminController {
     public ResponseEntity<ApiResponse> getAuditLogs(Authentication authentication) {
         String email = authentication.getName();
         log.info("Admin fetching audit logs with email: {}", email);
-        List<AuditLog> logs = adminService.getAuditLogs();
+        List<AuditLogResponse> logs = adminService.getAuditLogs();
         return ResponseEntity.ok(new ApiResponse(true, "Audit logs fetched successfully", logs));
     }
 

@@ -6,5 +6,6 @@ public enum ContractStatus {
     FULLY_SIGNED,
     EXPIRED,
     RENEWED,
-    CANCELLED
+    CANCELLED,
+    REJECTED
 }
