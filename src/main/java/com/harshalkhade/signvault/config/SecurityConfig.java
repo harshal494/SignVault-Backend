@@ -32,7 +32,14 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**", "/oauth2/**","/api/contracts/verify/**").permitAll()
+                        .requestMatchers(
+                                "/api/auth/register",
+                                "/api/auth/login",
+                                "/api/auth/send-email-otp",
+                                "/api/auth/verify-email-otp",
+                                "/oauth2/**",
+                                "/api/contracts/verify/**"
+                        ).permitAll()
                         .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "SUPERADMIN")
                         .anyRequest().authenticated()
                 )

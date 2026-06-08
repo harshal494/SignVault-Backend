@@ -1,0 +1,874 @@
+{
+  "info": {
+    "_postman_id": "4b3a0dc6-1a00-481a-afef-9d3b30ae82d2",
+    "name": "Sign Vault",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "46322060",
+    "_collection_link": "https://go.postman.co/collection/46322060-4b3a0dc6-1a00-481a-afef-9d3b30ae82d2?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "Profiles",
+          "item": [
+            {
+              "name": "Get Profile",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJoYXJzaGFsa2hhZGU0OTRAZ21haWwuY29tIiwiaWF0IjoxNzgwNDg1MDkxLCJleHAiOjE3ODA1NzE0OTF9.JaCKnNLyFEJsq3tDeoob3FCEbsgQlrzLQ__Ox_MhYKY",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "users",
+                    "profile"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Profile",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJoYXJzaGFsa2hhZGU0OTRAZ21haWwuY29tIiwiaWF0IjoxNzgwNDg1MDkxLCJleHAiOjE3ODA1NzE0OTF9.JaCKnNLyFEJsq3tDeoob3FCEbsgQlrzLQ__Ox_MhYKY",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"fullName\": \"Harshal p. Khade\",\r\n    \"phone\": \"9665633089\",\r\n    \"age\": \"22\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "users",
+                    "profile"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Deactivate Acc.",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJta2dhbWU3NjdAZ21haWwuY29tIiwiaWF0IjoxNzgwNDg5NDU4LCJleHAiOjE3ODA1NzU4NTh9.ziYrXlMIXA6SuzGw53wiFUI6ACxtlSTMzCUngcH5S8I",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"fullName\": \"Harshal p. Khade\",\r\n    \"phone\": \"9665633089\",\r\n    \"age\": \"22\"\r\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/deactivate",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "users",
+                    "deactivate"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"fullName\": \"Demo account \",\r\n    \"email\": \"mkgame767@gmail.com\",\r\n    \"phone\": \"8080906566\",\r\n    \"password\": \"password123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"harshalkhade494@gmail.com\",\r\n    \"password\": \"password123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "OTPs",
+      "item": [
+        {
+          "name": "Verify Email OTP",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"mkgame767@gmail.com\",\r\n    \"otp\": \"959377\",\r\n    \"type\": \"EMAIL_VERIFICATION\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/verify-email-otp",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "verify-email-otp"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Request new OTP",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/send-email-otp?email=pocom2prohk@gmail.com",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "send-email-otp"
+              ],
+              "query": [
+                {
+                  "key": "email",
+                  "value": "pocom2prohk@gmail.com"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Phone OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwb2NvbTJwcm9oa0BnbWFpbC5jb20iLCJpYXQiOjE3Nzk4ODE5OTIsImV4cCI6MTc3OTk2ODM5Mn0.FJiHwV7xZBkw7jlP3wWzj_j3ftvHxSzcHZs5nV9IWII",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"pocom2prohk@gmail.com\",\r\n    \"otp\": \"181219\",\r\n    \"type\": \"EMAIL_VERIFICATION\"\r\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/send-phone-otp",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "send-phone-otp"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Phone OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"pocom2prohk@gmail.com\",\r\n    \"otp\": \"713202\",\r\n    \"type\": \"PHONE_VERIFICATION\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/verify-phone-otp",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "verify-phone-otp"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Contracts",
+      "item": [
+        {
+          "name": "create and send",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJoYXJzaGFsa2hhZGU0OTRAZ21haWwuY29tIiwiaWF0IjoxNzgwODMyODkwLCJleHAiOjE3ODA5MTkyOTB9.SRZg5zUzDYXeR4w5Sxrs7K-TVI6KjmZTG7JymP-B1DQ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "data",
+                  "value": "{\"title\":\"My Second Contract\",\"receiverEmail\":\"mkgame767@gmail.com\",\"periodType\":\"DAYS\",\"periodValue\":5,\"periodFrom\":\"2025-05-31\"}",
+                  "type": "text",
+                  "uuid": "f0b71fbb-c79e-462e-abaa-9f7de17d991f",
+                  "contentType": "application/json"
+                },
+                {
+                  "key": "file",
+                  "type": "file",
+                  "uuid": "9fe6939e-021a-476e-877f-b31bfe89d93e",
+                  "src": "/C:/Users/Asus/Downloads/SIGNVAULT_CONTEXT_v4.md"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/contracts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "contracts"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET contract",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJoYXJzaGFsa2hhZGU0OTRAZ21haWwuY29tIiwiaWF0IjoxNzgwMTM4NjY4LCJleHAiOjE3ODAyMjUwNjh9.lY9OvcUmzJ4vi_69cgeJtFmiCN-LFFSfvvRo7r_xQ08",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "data",
+                  "value": "{\"title\":\"Employment Contract\",\"receiverEmail\":\"pocom2prohk@gmail.com\",\"periodType\":\"MONTHS\",\"periodValue\":6,\"periodFrom\":\"2025-06-01\"}",
+                  "type": "text",
+                  "uuid": "f0b71fbb-c79e-462e-abaa-9f7de17d991f",
+                  "contentType": "application/json"
+                },
+                {
+                  "key": "file",
+                  "type": "file",
+                  "uuid": "122671f7-2774-4491-96c4-4e51c00ce945",
+                  "src": "/C:/Users/Asus/Downloads/Harshal_Khade_Resume.pdf"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/contracts/SV-2026-X8GI3V",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "contracts",
+                "SV-2026-X8GI3V"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET verify  Contract",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/contracts/verify/SV-2026-X8GI3V",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "contracts",
+                "verify",
+                "SV-2026-X8GI3V"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel Contract",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJoYXJzaGFsa2hhZGU0OTRAZ21haWwuY29tIiwiaWF0IjoxNzgwODMyODkwLCJleHAiOjE3ODA5MTkyOTB9.SRZg5zUzDYXeR4w5Sxrs7K-TVI6KjmZTG7JymP-B1DQ",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/contracts/SV-2026-NJDESO/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "contracts",
+                "SV-2026-NJDESO",
+                "cancel"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reject Contract",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJta2dhbWU3NjdAZ21haWwuY29tIiwiaWF0IjoxNzgwODM1NzAzLCJleHAiOjE3ODA5MjIxMDN9.cEBCjSTCG3oQtFw5Uu2yA36q0K6VHfIlM1ueSukhex4",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/contracts/SV-2026-IR74FQ/reject",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "contracts",
+                "SV-2026-IR74FQ",
+                "reject"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Signature",
+      "item": [
+        {
+          "name": "Sender Sign",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwb2NvbTJwcm9oa0BnbWFpbC5jb20iLCJpYXQiOjE3ODAyMjU3MjIsImV4cCI6MTc4MDMxMjEyMn0.DuaLtMnlsAJx597wSQK84GIPWR5c5wNRiZr4DNjaw4o",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"contractId\": \"SV-2026-99Z65G\",\r\n    \"fingerprintString\": \"senderFingerprintData\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/signatures/sign",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "signatures",
+                "sign"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Receiver sign",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJoYXJzaGFsa2hhZGU0OTRAZ21haWwuY29tIiwiaWF0IjoxNzgwMjI2NjY3LCJleHAiOjE3ODAzMTMwNjd9.1T3FJe7zPHzFv3rCfGr4wgcU5bnFxxTKl8fwa-dVE7g",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"contractId\": \"SV-2026-99Z65G\",\r\n    \"fingerprintString\": \"receiverFingerprintData\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/signatures/sign",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "signatures",
+                "sign"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "Get All Notif",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJoYXJzaGFsa2hhZGU0OTRAZ21haWwuY29tIiwiaWF0IjoxNzgwNDg1MDkxLCJleHAiOjE3ODA1NzE0OTF9.JaCKnNLyFEJsq3tDeoob3FCEbsgQlrzLQ__Ox_MhYKY",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Unread Count",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJoYXJzaGFsa2hhZGU0OTRAZ21haWwuY29tIiwiaWF0IjoxNzgwNDg1MDkxLCJleHAiOjE3ODA1NzE0OTF9.JaCKnNLyFEJsq3tDeoob3FCEbsgQlrzLQ__Ox_MhYKY",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/unread-count",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "unread-count"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Put Mark All As Read",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJoYXJzaGFsa2hhZGU0OTRAZ21haWwuY29tIiwiaWF0IjoxNzgwNDg1MDkxLCJleHAiOjE3ODA1NzE0OTF9.JaCKnNLyFEJsq3tDeoob3FCEbsgQlrzLQ__Ox_MhYKY",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/read-all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "read-all"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Vault",
+      "item": [
+        {
+          "name": "Get Vault",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwb2NvbTJwcm9oa0BnbWFpbC5jb20iLCJpYXQiOjE3ODA1Njk3MzgsImV4cCI6MTc4MDY1NjEzOH0.xdG2oqSV-EOIXj9OBfltYZnlVGAwFOwNf7cVFBVW3K0",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"fullName\": \"Harshal p. Khade\",\r\n    \"phone\": \"9665633089\",\r\n    \"age\": \"22\"\r\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/vault",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "vault"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Vault Contract",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwb2NvbTJwcm9oa0BnbWFpbC5jb20iLCJpYXQiOjE3ODA1Njk3MzgsImV4cCI6MTc4MDY1NjEzOH0.xdG2oqSV-EOIXj9OBfltYZnlVGAwFOwNf7cVFBVW3K0",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"fullName\": \"Harshal p. Khade\",\r\n    \"phone\": \"9665633089\",\r\n    \"age\": \"22\"\r\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/vault/SV-2026-X8GI3V",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "vault",
+                "SV-2026-X8GI3V"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "ADMINs",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwb2NvbTJwcm9oa0BnbWFpbC5jb20iLCJpYXQiOjE3ODA4Mjg5MjksImV4cCI6MTc4MDkxNTMyOX0.0SGvjEyomv1RUBKDgSynZ5n8uzeRNnoEg71OAYUKFQo",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Contracts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwb2NvbTJwcm9oa0BnbWFpbC5jb20iLCJpYXQiOjE3ODA4Mjg5MjksImV4cCI6MTc4MDkxNTMyOX0.0SGvjEyomv1RUBKDgSynZ5n8uzeRNnoEg71OAYUKFQo",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/contracts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "contracts"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Flagged Contracts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwb2NvbTJwcm9oa0BnbWFpbC5jb20iLCJpYXQiOjE3ODA4Mjg5MjksImV4cCI6MTc4MDkxNTMyOX0.0SGvjEyomv1RUBKDgSynZ5n8uzeRNnoEg71OAYUKFQo",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/contracts/flagged",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "contracts",
+                "flagged"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Flag Contract",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwb2NvbTJwcm9oa0BnbWFpbC5jb20iLCJpYXQiOjE3ODA4Mjg5MjksImV4cCI6MTc4MDkxNTMyOX0.0SGvjEyomv1RUBKDgSynZ5n8uzeRNnoEg71OAYUKFQo",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/contracts/SV-2026-X8GI3V/flag",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "contracts",
+                "SV-2026-X8GI3V",
+                "flag"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Unflag Contract",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwb2NvbTJwcm9oa0BnbWFpbC5jb20iLCJpYXQiOjE3ODA4Mjg5MjksImV4cCI6MTc4MDkxNTMyOX0.0SGvjEyomv1RUBKDgSynZ5n8uzeRNnoEg71OAYUKFQo",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/contracts/SV-2026-X8GI3V/unflag",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "contracts",
+                "SV-2026-X8GI3V",
+                "unflag"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel Contract",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwb2NvbTJwcm9oa0BnbWFpbC5jb20iLCJpYXQiOjE3ODA4Mjg5MjksImV4cCI6MTc4MDkxNTMyOX0.0SGvjEyomv1RUBKDgSynZ5n8uzeRNnoEg71OAYUKFQo",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/contracts/SV-2026-X8GI3V/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "contracts",
+                "SV-2026-X8GI3V",
+                "cancel"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Audit Logs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwb2NvbTJwcm9oa0BnbWFpbC5jb20iLCJpYXQiOjE3ODA4Mjg5MjksImV4cCI6MTc4MDkxNTMyOX0.0SGvjEyomv1RUBKDgSynZ5n8uzeRNnoEg71OAYUKFQo",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/audit-logs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "audit-logs"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

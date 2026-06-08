@@ -7,6 +7,7 @@ import com.harshalkhade.signvault.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -44,8 +45,8 @@ public class AuthController {
     }
 
     @PostMapping("/send-phone-otp")
-    public ResponseEntity<ApiResponse> sendPhoneOtp(@AuthenticationPrincipal UserDetails userDetails) {
-        authService.sendPhoneOtp(userDetails.getUsername());
+    public ResponseEntity<ApiResponse> sendPhoneOtp(Authentication authentication) {
+        authService.sendPhoneOtp(authentication.getName());
         return ResponseEntity.ok(ApiResponse.success("Phone OTP sent successfully", null));
     }
 
@@ -56,14 +57,14 @@ public class AuthController {
     }
 
     @PostMapping("/register-fingerprint")
-    public ResponseEntity<ApiResponse> registerFingerprint( @AuthenticationPrincipal UserDetails userDetails,@Valid @RequestBody FingerprintRequest request) {
-        authService.registerFingerprint(request, userDetails.getUsername());
+    public ResponseEntity<ApiResponse> registerFingerprint(Authentication authentication, @Valid @RequestBody FingerprintRequest request) {
+        authService.registerFingerprint(request, authentication.getName());
         return ResponseEntity.ok(ApiResponse.success("Fingerprint registered successfully", null));
     }
 
     @PostMapping("/complete-profile")
-    public ResponseEntity<ApiResponse> completeProfile( @AuthenticationPrincipal UserDetails userDetails,@Valid @RequestBody CompleteProfileRequest request) {
-        authService.completeProfile(request,  userDetails.getUsername());
+    public ResponseEntity<ApiResponse> completeProfile(Authentication authentication, @Valid @RequestBody CompleteProfileRequest request) {
+        authService.completeProfile(request, authentication.getName());
         return ResponseEntity.ok(ApiResponse.success("Complete profile successfully", null));
     }
 
