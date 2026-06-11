@@ -24,7 +24,7 @@ public class VaultController {
     private final VaultService vaultService;
 
     @GetMapping
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'SUPERADMIN')")
     public ResponseEntity<ApiResponse> getVault(Authentication authentication) {
         String email = authentication.getName();
         log.info("Incoming request to get vault with email {}", email);
@@ -33,7 +33,7 @@ public class VaultController {
     }
 
     @GetMapping("/{contractId}")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'SUPERADMIN')")
     public ResponseEntity<ApiResponse> getVaultContract(@PathVariable String contractId, Authentication authentication) {
         String email = authentication.getName();
         log.info("Incoming request to get vault contract with email {}", email);
