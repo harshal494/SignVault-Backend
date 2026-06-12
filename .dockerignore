@@ -1,0 +1,9 @@
+target/
+.git/
+.idea/
+*.md
+.mvn/
+mvnw
+mvnw.cmd
+application.properties
+application-local.properties

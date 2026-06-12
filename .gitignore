@@ -35,3 +35,4 @@ build/
 # Credentials
 application.properties
 application-dev.properties
+application-local.properties
