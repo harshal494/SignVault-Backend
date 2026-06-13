@@ -3,117 +3,130 @@
 
 > A production-grade backend system that enables legally-binding digital contract signing between two parties — without ever needing to meet in person.
 
-Built with a full professional architecture using Java 17, Spring Boot 3.5, Spring Security, JWT, OAuth2, MySQL, and more.
+Built with a full professional architecture using Java 17, Spring Boot 3.5, Spring Security, JWT, OAuth2, MySQL, Cloudinary, and Twilio.
+
+**Backend status: 100% complete — 30+ endpoints, fully tested, deployed live.**
+
+---
+
+## 🔗 Live Links
+
+| Resource | Link |
+|---|---|
+| **Live API (Railway)** | https://signvault-backend-production.up.railway.app |
+| **Swagger UI** | https://signvault-backend-production.up.railway.app/swagger-ui/index.html |
+| **GitHub Repo** | https://github.com/harshal494/signvault |
+
+> 👉 **Recommended for recruiters/reviewers:** Use the Swagger UI link above to explore and try out every endpoint directly in the browser — no setup needed. See the **Testing Notes** section below for a couple of small caveats around file upload and OTP emails on the free-tier deployment.
 
 ---
 
 ## 💡 Problem Statement
 
-In India, most contracts still require physical presence for signing — bond papers, agreements, legal documents. This wastes time, money, and creates unnecessary friction especially for freelancers, small businesses, and rural users.
+In India, most agreements between two parties — rental agreements, freelance contracts, employment letters, NDAs — still rely on physical paper. Printing, signing, scanning, and couriering documents back and forth is slow, inconvenient, and easy to forge or dispute later.
 
-**SignVault solves this** by providing a secure, verifiable, and tamper-proof digital contract signing experience — with biometric fingerprint validation, OTP-based identity verification, audit trails, and an immutable signed contract vault.
+**SignVault solves this** by providing a secure, verifiable, and tamper-proof digital contract signing experience — with fingerprint-based signing, OTP-based identity verification, a complete audit trail, and an immutable vault for completed contracts.
 
 ---
 
 ## ⚙️ Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Language | Java 17 |
-| Framework | Spring Boot 3.5 |
-| Security | Spring Security + JWT + OAuth2 (Google) |
-| Database | MySQL 8 |
-| ORM | Spring Data JPA + Hibernate |
-| Migrations | Flyway |
-| File Storage | Cloudinary |
-| Email | JavaMailSender (Gmail SMTP) |
-| SMS / OTP | Twilio |
-| Build Tool | Maven |
-| Utilities | Lombok, Bean Validation |
-| API Testing | Postman |
+| Layer | Technology | Purpose |
+|---|---|---|
+| Language | Java 17 | Core language |
+| Framework | Spring Boot 3.5.14 | REST API, dependency injection, app lifecycle |
+| Security | Spring Security 6.5 + JWT + OAuth2 (Google) | Stateless auth, 3-layer role-based access control |
+| Database | MySQL 8 | Persistent storage for users, contracts, audit logs |
+| ORM | Spring Data JPA + Hibernate | Database access layer |
+| Migrations | Flyway | Version-controlled schema changes |
+| File Storage | Cloudinary | PDF contract storage with SHA-256 tamper detection |
+| Email | JavaMailSender (Gmail SMTP) | Async notifications on every contract event |
+| SMS / OTP | Twilio | Phone OTP verification |
+| API Docs | springdoc-openapi + Swagger UI | Interactive API documentation |
+| Build Tool | Maven | Dependency & build management |
+| Deployment | Docker + Railway | Containerized deployment |
+| API Testing | Postman (exported collection included) | End-to-end endpoint testing |
 
 ---
 
 ## 🚀 Features
 
 ### Authentication & Identity
-- Normal registration with email + phone OTP verification (both compulsory)
-- Google OAuth2 login with profile completion gate
-- JWT-based stateless authentication
-- Fingerprint hash stored with BCrypt + SHA-256 (dual hashing for security + dispute resolution)
-- One email and one phone per account (unique enforcement at DB level)
-- Role-Based Access Control (RBAC) — `ROLE_USER`, `ROLE_ADMIN`, `ROLE_SUPERADMIN`
+- Email/password registration with email OTP verification
+- Google OAuth2 login (email auto-verified by Google)
+- Optional phone OTP verification via Twilio (post-login, part of profile completion — not a login blocker)
+- JWT-based stateless authentication (24-hour token expiry)
+- Fingerprint stored as dual hash — BCrypt (verification) + SHA-256 (dispute proof). Raw fingerprint never stored.
+- Role-Based Access Control — `ROLE_USER`, `ROLE_ADMIN`, `ROLE_SUPERADMIN`
 
 ### Contract Management
-- Upload PDF contract → SHA-256 hash generated for tamper detection
-- Unique contract ID assigned to every contract
-- Contract period configuration — Days / Months / Years / Permanent
-- Sender signs first with fingerprint verification
-- Contract sent to receiver via email + in-app notification
-- Receiver verifies identity (OTP) and signs with fingerprint
-- Contract status lifecycle: `PENDING → SENDER_SIGNED → FULLY_SIGNED → EXPIRED`
+- Upload PDF contract → SHA-256 hash generated and stored for tamper detection
+- Unique contract ID assigned to every contract (`SV-2026-XXXXXX`)
+- Configurable contract period — Days / Months / Years / Permanent
+- Sender signs first, then receiver — strict order enforced
+- Contract delivery via email + in-app notification
+- **Reject** — receiver can decline a contract's terms before or after sender signs
+- **Cancel** — sender can withdraw their own contract while it's still PENDING
+- Contract status lifecycle: `PENDING → SENDER_SIGNED → FULLY_SIGNED → EXPIRED / RENEWED` (with `CANCELLED` and `REJECTED` as terminal exit states)
 
 ### Security & Trust
 - PDF tamper detection via SHA-256 hash comparison
-- Fingerprint dispute resolution — SHA-256 hash stored at signing time for proof
-- Full audit trail — every action timestamped with IP address
-- Immutable vault — signed contracts cannot be deleted or modified by anyone
+- Fingerprint dispute resolution via SHA-256 hash captured at signing time
+- Full audit trail — every action logged with user, action type, timestamp, and IP address
+- Immutable vault — fully signed contracts cannot be edited or deleted by regular users
+- Public contract verification endpoint that hides cancelled contracts from public view (returns 404, no status leak)
 
 ### Notifications & Reminders
-- In-app notification system
-- Email notifications for every contract event
-- Expiry reminder schedule:
-  - Days 7–3: 1× daily reminder
-  - Days 2–1: 3× daily reminder + contract renewal unlocked
-  - Last 24 hours: hourly reminders
-- Spring `@Scheduled` background job runs every hour
+- In-app notification system (read/unread, mark all as read)
+- Async email notifications for every contract event
+- Automated expiry reminder scheduler — runs every 5 minutes, covers 8 reminder windows (7 days, 3 days, 2 days, 1 day, 24 hours, 1 hour, 30 minutes, 10 minutes before expiry)
+- Duplicate-reminder prevention — each user gets each reminder window exactly once per contract
 
-### Contract Renewal
-- Renewal only allowed in last 2 days before expiry
-- Creates a new contract linked to the original (both immutable)
-- Both parties must re-sign the renewed contract
-
-### Vault
-- All fully signed contracts saved to both parties' vaults automatically
-- Downloadable but never deletable or editable
-- Admin can view vault but cannot modify
+### Admin Panel (RBAC)
+- **ROLE_ADMIN** — view all users & contracts, flag suspicious contracts, deactivate user accounts, view full audit log
+- **ROLE_SUPERADMIN** — everything ADMIN can do, plus promote/demote users, unflag contracts, and **cancel any contract at any status** — including contracts already in the immutable vault, for legal/fraud takedown scenarios
+- Flagging workflow: ADMIN flags a suspicious contract → SUPERADMIN reviews → either unflags (cleared) or cancels (terminated)
 
 ---
 
 ## 🗂️ Project Structure
 
 ```
-src/main/java/com/harshalkkhade/signvault/
+src/main/java/com/harshalkhade/signvault/
 │
-├── config/          # SecurityConfig, OAuth2Config, CloudinaryConfig, SchedulerConfig, CorsConfig
-├── controller/      # AuthController, ContractController, VaultController, etc.
+├── config/          # SecurityConfig, CloudinaryConfig, SchedulerConfig, CorsConfig, PasswordConfig
+├── controller/      # AuthController, ContractController, SignatureController,
+│                     NotificationController, UserController, VaultController, AdminController
 ├── dto/
-│   ├── request/     # RegisterRequest, LoginRequest, CreateContractRequest, etc.
-│   └── response/    # AuthResponse, ContractResponse, ApiResponse, etc.
+│   ├── request/     # RegisterRequest, LoginRequest, CreateContractRequest, SignContractRequest, etc.
+│   └── response/    # AuthResponse, ContractResponse, ApiResponse, AuditLogResponse, etc.
 ├── entity/          # User, Contract, Signature, ContractFile, AuditLog, Notification, OtpVerification
 ├── enums/           # Role, ContractStatus, PeriodType, OtpType, NotificationType, AuthProvider, SignatureRole
-├── exception/       # GlobalExceptionHandler, ResourceNotFoundException, etc.
+├── exception/       # GlobalExceptionHandler, ResourceNotFoundException, UnauthorizedException, ContractException
 ├── repository/      # JpaRepository interfaces for all entities
 ├── security/        # JwtUtil, JwtAuthFilter, CustomUserDetailsService, OAuth2SuccessHandler
-├── service/         # Business logic — AuthService, ContractService, NotificationService, etc.
+├── service/         # AuthService, ContractService, SignatureService, NotificationService,
+│                     UserService, VaultService, SchedulerService, AdminService, EmailService, SmsService
 └── util/            # HashUtil, OtpGenerator, ContractIdGenerator, DateUtil
 
 src/main/resources/
 ├── application.properties.example   # Template — copy and fill your own values
-├── db/migration/                    # Flyway SQL migration files V1–V5
-└── templates/                       # HTML email templates
+└── db/migration/                    # Flyway SQL migration files V1–V7
+
+postman/
+└── SignVault.postman_collection.json   # Full exported collection with test scripts
 ```
 
 ---
 
 ## 🗄️ Database Schema
 
-7 MySQL tables managed via Flyway migrations:
+7 MySQL tables managed via Flyway migrations (V1–V7):
 
 | Table | Purpose |
 |---|---|
-| `users` | User accounts, auth details, fingerprint hashes |
-| `contracts` | Contract metadata, period, status, renewal info |
+| `users` | User accounts, auth details, roles, fingerprint hashes |
+| `contracts` | Contract metadata, period, status, renewal info, flagged status |
 | `signatures` | Individual signatures per party per contract |
 | `contract_files` | Cloudinary URL + SHA-256 hash of uploaded PDF |
 | `audit_logs` | Tamper-proof activity log for every contract action |
@@ -126,53 +139,150 @@ src/main/resources/
 
 | Role | Access |
 |---|---|
-| `ROLE_USER` | Own contracts, own vault, own mailbox, own notifications |
-| `ROLE_ADMIN` | View any contract, resolve disputes, view audit logs |
-| `ROLE_SUPERADMIN` | All admin access + promote/demote users + deactivate accounts |
+| `ROLE_USER` | Create/send contracts, sign, reject (as receiver), cancel own PENDING contracts (as sender), view own vault, notifications, profile |
+| `ROLE_ADMIN` | Everything USER can do **+** view all users/contracts, flag suspicious contracts, deactivate any user, view audit logs |
+| `ROLE_SUPERADMIN` | Everything ADMIN can do **+** promote/demote users, unflag contracts, **cancel any contract at any status (including the vault)** |
 
-Vault is **immutable for all roles** — no delete or update on signed contracts.
+Security is enforced at 3 layers: URL-level (`SecurityConfig`), method-level (`@PreAuthorize`), and business-logic level (service layer checks).
 
 ---
 
-## 📡 API Overview
+## 📡 Complete API Reference
 
-### Auth
+### Authentication — `/api/auth/**`
+
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| POST | `/api/auth/register` | Public | Register with email, phone, password. Sends email OTP automatically. Returns JWT. |
+| POST | `/api/auth/login` | Public | Login with email + password. Returns JWT. Requires `emailVerified = true`. |
+| POST | `/api/auth/send-email-otp` | Public | Send/resend OTP to email |
+| POST | `/api/auth/verify-email-otp` | Public | Verify email OTP — sets `emailVerified = true` |
+| POST | `/api/auth/send-phone-otp` | JWT | Send SMS OTP to user's registered phone (via Twilio) |
+| POST | `/api/auth/verify-phone-otp` | JWT | Verify phone OTP — sets `phoneVerified = true` |
+| POST | `/api/auth/register-fingerprint` | JWT | Register fingerprint hash (BCrypt + SHA-256) |
+| POST | `/api/auth/complete-profile` | JWT | Update name, phone, age — sets `profileComplete = true` once email + phone verified |
+| GET | `/oauth2/authorization/google` | Public | Initiate Google OAuth2 login |
+
+### Contracts — `/api/contracts/**` — `ROLE_USER`
+
 | Method | Endpoint | Description |
 |---|---|---|
-| POST | `/api/auth/register` | Register with email + phone |
-| POST | `/api/auth/login` | Login → JWT token |
-| GET | `/oauth2/authorize/google` | Google OAuth2 login |
-| POST | `/api/auth/send-email-otp` | Send email OTP |
-| POST | `/api/auth/verify-email-otp` | Verify email OTP |
-| POST | `/api/auth/send-phone-otp` | Send phone OTP |
-| POST | `/api/auth/verify-phone-otp` | Verify phone OTP |
-| POST | `/api/auth/register-fingerprint` | Store fingerprint hash |
-| POST | `/api/auth/complete-profile` | Complete profile after Google login |
+| POST | `/api/contracts` | Create + send a contract. **multipart/form-data**: part `data` (JSON, `Content-Type: application/json`) + part `file` (PDF) |
+| GET | `/api/contracts/{contractId}` | Get full contract details — sender or receiver only |
+| GET | `/api/contracts/verify/{contractId}` | **Public.** Verify a contract's legitimacy. Returns minimal info. Cancelled contracts return 404. |
+| PUT | `/api/contracts/{contractId}/cancel` | Sender withdraws their own contract — only while status is `PENDING` |
+| PUT | `/api/contracts/{contractId}/reject` | Receiver declines the contract — while status is `PENDING` or `SENDER_SIGNED` |
 
-### Contracts
+### Signatures — `/api/signatures/**` — `ROLE_USER`
+
 | Method | Endpoint | Description |
 |---|---|---|
-| POST | `/api/contracts/upload` | Upload PDF |
-| POST | `/api/contracts/send` | Send contract to receiver |
-| GET | `/api/contracts/{contractId}` | Get contract details |
-| GET | `/api/contracts/verify/{contractId}` | Public contract verification |
-| POST | `/api/contracts/{contractId}/sign` | Sign contract |
-| POST | `/api/contracts/{contractId}/renew` | Renew contract (last 2 days only) |
+| POST | `/api/signatures/sign` | Sign a contract with fingerprint data. Sender must sign first, then receiver. |
 
-### Vault & Mailbox
+### Notifications — `/api/notifications/**` — `ROLE_USER`
+
 | Method | Endpoint | Description |
 |---|---|---|
-| GET | `/api/vault` | My signed contracts |
-| GET | `/api/vault/{contractId}/download` | Download signed PDF |
-| GET | `/api/mailbox/inbox` | Received contracts |
-| GET | `/api/mailbox/outbox` | Sent contracts |
+| GET | `/api/notifications` | All notifications for the logged-in user, newest first |
+| GET | `/api/notifications/unread-count` | Count of unread notifications |
+| PUT | `/api/notifications/{id}/read` | Mark a single notification as read |
+| PUT | `/api/notifications/read-all` | Mark all notifications as read |
 
-### Notifications
+### Users — `/api/users/**` — `ROLE_USER`
+
 | Method | Endpoint | Description |
 |---|---|---|
-| GET | `/api/notifications` | All my notifications |
-| PUT | `/api/notifications/{id}/read` | Mark as read |
-| PUT | `/api/notifications/read-all` | Mark all as read |
+| GET | `/api/users/profile` | Get logged-in user's profile |
+| PUT | `/api/users/profile` | Update profile (name, phone, age) |
+| DELETE | `/api/users/deactivate` | Deactivate own account |
+
+### Vault — `/api/vault/**` — `ROLE_USER`
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/vault` | All `FULLY_SIGNED` contracts for the logged-in user |
+| GET | `/api/vault/{contractId}` | A single fully-signed contract from the vault |
+
+### Admin — `/api/admin/**` — `ROLE_ADMIN` / `ROLE_SUPERADMIN`
+
+| Method | Endpoint | Role | Description |
+|---|---|---|---|
+| GET | `/api/admin/users` | ADMIN + SUPERADMIN | List all users |
+| GET | `/api/admin/users/{id}` | ADMIN + SUPERADMIN | Get a single user by ID |
+| PUT | `/api/admin/users/{id}/deactivate` | ADMIN + SUPERADMIN | Deactivate any user account |
+| PUT | `/api/admin/users/{id}/promote` | SUPERADMIN | Promote a user to `ROLE_ADMIN` |
+| PUT | `/api/admin/users/{id}/demote` | SUPERADMIN | Demote an admin back to `ROLE_USER` |
+| GET | `/api/admin/contracts` | ADMIN + SUPERADMIN | List every contract in the system |
+| GET | `/api/admin/contracts/flagged` | ADMIN + SUPERADMIN | List all flagged contracts |
+| PUT | `/api/admin/contracts/{contractId}/flag` | ADMIN + SUPERADMIN | Flag a contract for review |
+| PUT | `/api/admin/contracts/{contractId}/unflag` | SUPERADMIN | Clear a flag |
+| PUT | `/api/admin/contracts/{contractId}/cancel` | SUPERADMIN | Cancel **any** contract, at **any** status, including the vault |
+| GET | `/api/admin/audit-logs` | ADMIN + SUPERADMIN | Full audit trail (sanitized — no passwords/hashes exposed) |
+
+---
+
+## 🔄 Contract Status Flow
+
+```
+PENDING ──signs──► SENDER_SIGNED ──signs──► FULLY_SIGNED ──► Vault (immutable)
+   │                     │                        │
+   ├──reject──► REJECTED ┘                        ├──► EXPIRED (auto, via scheduler)
+   │                                               └──► CANCELLED (SUPERADMIN only)
+   └──cancel (sender)──► CANCELLED
+   └──SUPERADMIN cancel──► CANCELLED   (any status, overrides vault immutability)
+```
+
+---
+
+## 🧪 Testing the Live Deployment
+
+### 🔑 Demo Accounts
+
+Three pre-verified demo accounts are available — feel free to use them to explore the platform without registering your own:
+
+| Email | Password | Role |
+|---|---|---|
+| `signvaultdemoacc1@gmail.com` | `password123` | `ROLE_SUPERADMIN` |
+| `signvaultdemoacc2@gmail.com` | `password123` | `ROLE_USER` |
+| `signvaultdemoacc3@gmail.com` | `password123` | `ROLE_USER` |
+
+All three have `emailVerified` and `phoneVerified` already set to `true`, so you can log in immediately — no OTP step required.
+
+- Use **demo account 1** to explore the full **Admin panel** (`/api/admin/**`)
+- Use **demo accounts 2 & 3** as sender/receiver to test the full **contract → sign → vault** flow
+
+### ✅ Recommended Testing Sequence
+
+1. **Login** — `POST /api/auth/login` with one of the demo accounts above → copy the returned `token`
+2. **Authorize** in Swagger — click the 🔒 **Authorize** button and paste `Bearer <token>` (Swagger UI handles this automatically once authorized)
+3. **Create a contract** — `POST /api/contracts` as demo account 2, sending to demo account 3's email
+4. **Sign as sender** — `POST /api/signatures/sign` (logged in as account 2)
+5. **Sign as receiver** — log in as account 3, `POST /api/signatures/sign` again → contract becomes `FULLY_SIGNED`
+6. **Check the Vault** — `GET /api/vault` as either party
+7. **Verify publicly** — `GET /api/contracts/verify/{contractId}` (no auth needed)
+8. **Try Admin actions** — log in as demo account 1, explore `/api/admin/**` — view all users/contracts, flag a contract, view audit logs
+
+### ⚠️ A Couple of Small Notes on the Live Deployment
+
+This is deployed on Railway's free tier, which comes with a couple of minor quirks worth knowing about before you dive in:
+
+- **Email-dependent endpoints** (email OTP, contract notification emails, expiry reminder emails) do not send on the live deployment — Railway's free tier blocks outbound SMTP connections (port 587). All of these are fully implemented and verified working in local testing — happy to share a quick demo on request. None of this affects the demo accounts above, since they're pre-verified and don't require any OTP step.
+
+- **`POST /api/contracts` (file upload) via Swagger UI** — Swagger UI has a known limitation where it sends the JSON metadata part of a multipart request with the wrong content-type, which the endpoint correctly rejects. **This endpoint works perfectly via Postman or a real frontend** (where `Content-Type` is set correctly). The included [Postman collection](#-postman-collection) has this pre-configured and ready to run — recommended if you'd like to test contract creation end-to-end.
+
+Every other endpoint works as expected directly through Swagger UI.
+
+---
+
+## 📦 Postman Collection
+
+A full Postman collection with environment variables and automated test scripts for all 30+ endpoints is included in the repo:
+
+```
+postman/SignVault.postman_collection.json
+```
+
+Import it into Postman, set the `baseUrl` environment variable to `https://signvault-backend-production.up.railway.app`, run the **Login** request (auto-saves your JWT token), and you're ready to go — including the file upload endpoint mentioned above.
 
 ---
 
@@ -182,12 +292,13 @@ Vault is **immutable for all roles** — no delete or update on signed contracts
 - Java 17
 - MySQL 8
 - Maven
+- (Optional) Docker
 
 ### Steps
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/harshalkkhade/signvault.git
+git clone https://github.com/harshal494/signvault.git
 cd signvault
 ```
 
@@ -200,40 +311,43 @@ CREATE DATABASE signvault_db;
 ```bash
 cp src/main/resources/application.properties.example src/main/resources/application.properties
 ```
-Then fill in your MySQL password, JWT secret, and other credentials.
+Fill in your MySQL credentials, JWT secret, Cloudinary, Gmail SMTP, and Twilio credentials.
 
 4. **Run the application**
 ```bash
 mvn spring-boot:run
 ```
 
-The app starts on `http://localhost:8080`
+The app starts on `http://localhost:8080`. Flyway automatically applies all 7 migrations on first run.
 
-Flyway automatically creates all 7 tables on first run.
+5. **Explore the API**
+
+Visit `http://localhost:8080/swagger-ui/index.html`
 
 ---
 
 ## 📌 Development Approach
 
-This project follows **Agile development** — built feature by feature in sprints:
+Built feature-by-feature across 7 completed sprints:
 
-- ✅ Sprint 1 — Project setup, entities, repositories, Flyway migrations
-- 🔄 Sprint 2 — Security layer (JWT, Spring Security, OAuth2) *(in progress)*
-- ⏳ Sprint 3 — Auth APIs (register, login, OTP, fingerprint)
-- ⏳ Sprint 4 — Contract APIs (upload, send, sign)
-- ⏳ Sprint 5 — Notifications, scheduler, vault
-- ⏳ Sprint 6 — Admin, audit, deployment
+- ✅ **Sprint 1** — Project setup, entities, repositories, Flyway migrations
+- ✅ **Sprint 2** — Security layer (JWT, Spring Security, OAuth2)
+- ✅ **Sprint 3** — Auth APIs (register, login, OTP, fingerprint)
+- ✅ **Sprint 4** — Contract APIs (create, send, verify)
+- ✅ **Sprint 5** — Signature APIs (sign, status transitions)
+- ✅ **Sprint 6** — Notifications, expiry scheduler, vault, CORS
+- ✅ **Sprint 7** — Admin panel (flag/unflag/cancel, RBAC, audit logs)
+- ✅ **Post-sprint** — Cancel/Reject for regular users, AuditLog sanitization, full Postman test suite, Docker + Railway deployment
 
 ---
 
 ## 👨‍💻 Author
 
 **Harshal Khade**
-Final Year CSE Student — 
-      Sant Gadge Baba Amravati University, Amravati
+B.E. Computer Science & Engineering — Sant Gadge Baba Amravati University (2026)
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue)](http://www.linkedin.com/in/harshal-khade-bb6285213 )
-[![GitHub](https://img.shields.io/badge/GitHub-Follow-black)](https://github.com/harshal494 )
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue)](http://www.linkedin.com/in/harshal-khade-bb6285213)
+[![GitHub](https://img.shields.io/badge/GitHub-Follow-black)](https://github.com/harshal494)
 
 ---
 
