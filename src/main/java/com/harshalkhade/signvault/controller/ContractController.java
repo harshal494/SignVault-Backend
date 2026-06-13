@@ -5,10 +5,13 @@ import com.harshalkhade.signvault.dto.response.ApiResponse;
 import com.harshalkhade.signvault.dto.response.ContractResponse;
 import com.harshalkhade.signvault.dto.response.VerifyContractResponse;
 import com.harshalkhade.signvault.service.ContractService;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -24,11 +27,14 @@ public class ContractController {
 
     private final ContractService contractService;
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<ApiResponse> createAndSend(
             @RequestPart("data") @Valid CreateContractRequest request,
-            @RequestPart("file")MultipartFile file,
+            @Parameter(description = "Contract PDF file", required = true)
+            @RequestPart("file")
+            @Schema(type = "string", format = "binary")
+            MultipartFile file,
             Authentication authentication,
             HttpServletRequest httpRequest) throws Exception {
 

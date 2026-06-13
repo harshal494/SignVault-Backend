@@ -96,9 +96,9 @@ public class AuthService {
             throw new RuntimeException("Email is not verified!");
         }
 
-        if (!user.isPhoneVerified()) {
-            throw new RuntimeException("Phone number is not verified!");
-        }
+//        if (!user.isPhoneVerified()) {
+//            throw new RuntimeException("Phone number is not verified!");
+//        }
 
         UserDetails userDetails = org.springframework.security.core.userdetails.User
                 .withUsername(user.getEmail())
