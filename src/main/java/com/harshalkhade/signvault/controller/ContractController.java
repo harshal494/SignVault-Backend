@@ -27,7 +27,7 @@ public class ContractController {
 
     private final ContractService contractService;
 
-    @PostMapping //(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping (consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<ApiResponse> createAndSend(
             @RequestPart("data") @Valid CreateContractRequest request,
