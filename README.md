@@ -228,7 +228,7 @@ A full Postman collection with environment variables and automated test scripts 
 postman/SignVault.postman_collection.json
 ```
 
-Import it into Postman, set the `baseUrl` environment variable to `https://signvault-backend-production.up.railway.app`, run the **Login** request (auto-saves your JWT token), and you're ready to go — including the file upload endpoint mentioned above.
+Import it into Postman, set the `baseUrl` environment variable to `https://localhost:8080/`, run the **Login** request (auto-saves your JWT token), and you're ready to go — including the file upload endpoint mentioned above.
 
 ---
 
