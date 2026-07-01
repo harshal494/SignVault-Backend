@@ -5,21 +5,8 @@
 
 Built with a full professional architecture using Java 17, Spring Boot 3.5, Spring Security, JWT, OAuth2, MySQL, Cloudinary, and Twilio.
 
-**Backend status: 100% complete — 30+ endpoints, fully tested, deployed live.**
+**Backend status: 100% complete — 30+ endpoints.**
 
----
-
-## 🔗 Live Links
-
-| Resource | Link |
-|---|---|
-| **Live API (Railway)** | https://signvault-backend-production.up.railway.app |
-| **Swagger UI** | https://signvault-backend-production.up.railway.app/swagger-ui/index.html |
-| **GitHub Repo** | https://github.com/harshal494/signvault |
-
-> 👉 **Recommended for recruiters/reviewers:** Use the Swagger UI link above to explore and try out every endpoint directly in the browser — no setup needed. See the **Testing Notes** section below for a couple of small caveats around file upload and OTP emails on the free-tier deployment.
-
----
 
 ## 💡 Problem Statement
 
@@ -232,47 +219,6 @@ PENDING ──signs──► SENDER_SIGNED ──signs──► FULLY_SIGNED ─
    └──SUPERADMIN cancel──► CANCELLED   (any status, overrides vault immutability)
 ```
 
----
-
-## 🧪 Testing the Live Deployment
-
-### 🔑 Demo Accounts
-
-Three pre-verified demo accounts are available — feel free to use them to explore the platform without registering your own:
-
-| Email | Password | Role |
-|---|---|---|
-| `signvaultdemoacc1@gmail.com` | `password123` | `ROLE_SUPERADMIN` |
-| `signvaultdemoacc2@gmail.com` | `password123` | `ROLE_USER` |
-| `signvaultdemoacc3@gmail.com` | `password123` | `ROLE_USER` |
-
-All three have `emailVerified` and `phoneVerified` already set to `true`, so you can log in immediately — no OTP step required.
-
-- Use **demo account 1** to explore the full **Admin panel** (`/api/admin/**`)
-- Use **demo accounts 2 & 3** as sender/receiver to test the full **contract → sign → vault** flow
-
-### ✅ Recommended Testing Sequence
-
-1. **Login** — `POST /api/auth/login` with one of the demo accounts above → copy the returned `token`
-2. **Authorize** in Swagger — click the 🔒 **Authorize** button and paste `Bearer <token>` (Swagger UI handles this automatically once authorized)
-3. **Create a contract** — `POST /api/contracts` as demo account 2, sending to demo account 3's email
-4. **Sign as sender** — `POST /api/signatures/sign` (logged in as account 2)
-5. **Sign as receiver** — log in as account 3, `POST /api/signatures/sign` again → contract becomes `FULLY_SIGNED`
-6. **Check the Vault** — `GET /api/vault` as either party
-7. **Verify publicly** — `GET /api/contracts/verify/{contractId}` (no auth needed)
-8. **Try Admin actions** — log in as demo account 1, explore `/api/admin/**` — view all users/contracts, flag a contract, view audit logs
-
-### ⚠️ A Couple of Small Notes on the Live Deployment
-
-This is deployed on Railway's free tier, which comes with a couple of minor quirks worth knowing about before you dive in:
-
-- **Email-dependent endpoints** (email OTP, contract notification emails, expiry reminder emails) do not send on the live deployment — Railway's free tier blocks outbound SMTP connections (port 587). All of these are fully implemented and verified working in local testing — happy to share a quick demo on request. None of this affects the demo accounts above, since they're pre-verified and don't require any OTP step.
-
-- **`POST /api/contracts` (file upload) via Swagger UI** — Swagger UI has a known limitation where it sends the JSON metadata part of a multipart request with the wrong content-type, which the endpoint correctly rejects. **This endpoint works perfectly via Postman or a real frontend** (where `Content-Type` is set correctly). The included [Postman collection](#-postman-collection) has this pre-configured and ready to run — recommended if you'd like to test contract creation end-to-end.
-
-Every other endpoint works as expected directly through Swagger UI.
-
----
 
 ## 📦 Postman Collection
 
