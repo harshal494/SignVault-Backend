@@ -17,10 +17,10 @@ public class EmailService {
 
     private final RestClient restClient;
 
-    @Value("${BREVO_API_KEY}")
+    @Value("${signvault.brevo.api-key}")
     private String apiKey;
 
-    @Value("${BREVO_SENDER_EMAIL}")
+    @Value("${signvault.brevo.sender-email}")
     private String senderEmail;
 
     public EmailService() {
