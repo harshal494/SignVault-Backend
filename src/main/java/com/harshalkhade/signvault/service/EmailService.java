@@ -2,10 +2,12 @@ package com.harshalkhade.signvault.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -28,7 +30,7 @@ public class EmailService {
     }
 
     /**
-     * Helper method to send a JSON payload to Brevo API over HTTPS (Port 443)
+     * Internal helper method to execute HTTPS payload delivery to Brevo API v3
      */
     private void executeApiMailRequest(String to, String subject, String htmlContent) {
         try {
@@ -39,17 +41,26 @@ public class EmailService {
                     "htmlContent", htmlContent
             );
 
+            log.info("[EmailService] Sending API email to: {} using sender: {}", to, senderEmail);
+
             restClient.post()
                     .uri("/smtp/email")
                     .header("api-key", apiKey)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(requestBody)
                     .retrieve()
+                    // Aggressively capture any explicit error reason returned directly from Brevo
+                    .onStatus(HttpStatusCode::isError, (request, response) -> {
+                        byte[] bodyBytes = response.getBody().readAllBytes();
+                        String errorDetails = new String(bodyBytes, StandardCharsets.UTF_8);
+                        log.error("[EmailService] Brevo API Error Response: Status Code: {}, Body: {}", response.getStatusCode(), errorDetails);
+                        throw new RuntimeException("Brevo rejected transmission: " + errorDetails);
+                    })
                     .toBodilessEntity();
 
-            log.info("Email sent successfully via Brevo API to: {}", to);
+            log.info("[EmailService] Email successfully delivered to: {}", to);
         } catch (Exception e) {
-            log.error("Failed to send email via Brevo API to: {}", to, e);
+            log.error("[EmailService] Crash during execution pipeline: {}", e.getMessage());
             throw new RuntimeException("Failed to send email via Brevo Web API", e);
         }
     }
@@ -79,8 +90,6 @@ public class EmailService {
         executeApiMailRequest(to, "Expiry Reminder", htmlContent);
     }
 }
-
-
 
 
 
