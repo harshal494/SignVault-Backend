@@ -11,4 +11,4 @@ WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
 # Ensure the application reads system environment variables directly at execution
-ENTRYPOINT ["sh", "-c", "java -jar target/*.jar"]
+ENTRYPOINT ["java", "-jar", "target/signvault.jar"]
