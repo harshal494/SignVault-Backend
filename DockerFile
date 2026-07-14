@@ -5,10 +5,14 @@ COPY pom.xml .
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-# Stage 2: Run
-FROM eclipse-temurin:17-jre
+# Stage 2: Runtime environment setup
+FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
+
+# Copies the compiled file and names it exactly signvault.jar in the working folder
+COPY --from=build /app/target/signvault-0.1.1.jar /app/signvault.jar
+
 EXPOSE 8080
-# Ensure the application reads system environment variables directly at execution
-ENTRYPOINT ["java", "-jar", "target/signvault.jar"]
+
+# Starts the service using the precise directory location reference
+ENTRYPOINT ["java", "-jar", "/app/signvault.jar"]
