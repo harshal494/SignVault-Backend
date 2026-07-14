@@ -21,8 +21,8 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("SignVault API")
                         .description("Digital Contract Signing Platform — Backend API")
-                        .version("v1.0"))
-                .addServersItem(new Server().url("https://signvault-backend-production.up.railway.app"))
+                        .version("v1.1"))
+                .addServersItem(new Server().url("https://signvault-virtual-contract-platform.onrender.com"))
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(new Components()
                         .addSecuritySchemes(securitySchemeName,
