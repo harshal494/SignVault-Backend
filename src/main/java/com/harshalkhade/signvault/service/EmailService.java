@@ -1,5 +1,6 @@
 package com.harshalkhade.signvault.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -9,6 +10,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -20,24 +23,25 @@ public class EmailService {
     @Value("${signvault.brevo.sender-email}")
     private String senderEmail;
 
-    // Use pure native Java HttpClient, completely independent of Spring Boot framework hooks
     private final HttpClient nativeClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
             .build();
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     private void executeApiMailRequest(String to, String subject, String htmlContent) {
         try {
-            log.info("[EmailService] Bypassing Spring framework. Dispatching pure native connection to Brevo.");
+            log.info("[EmailService] Dispatching clean payload directly to Brevo API.");
 
-            // Manually escape backslashes and double quotes into clean JSON format strings
-            String safeHtmlContent = htmlContent.replace("\"", "\\\"");
+            // Constructing using explicit Maps ensures Jackson serializes the JSON flawlessly
+            Map<String, Object> payloadMap = Map.of(
+                    "sender", Map.of("name", "SignVault", "email", senderEmail),
+                    "to", List.of(Map.of("email", to)),
+                    "subject", subject,
+                    "htmlContent", htmlContent
+            );
 
-            String jsonPayload = "{"
-                    + "\"sender\":{\"name\":\"SignVault\",\"email\":\"" + senderEmail + "\"},"
-                    + "\"to\":[{\"email\":\"" + to + "\"}],"
-                    + "\"subject\":\"" + subject + "\","
-                    + "\"htmlContent\":\"" + safeHtmlContent + "\""
-                    + "}";
+            String jsonPayload = objectMapper.writeValueAsString(payloadMap);
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://brevo.com"))
@@ -53,13 +57,13 @@ public class EmailService {
             if (response.statusCode() >= 200 && response.statusCode() < 300) {
                 log.info("[EmailService] Email successfully delivered natively! Status: {}", response.statusCode());
             } else {
-                log.error("[EmailService] Brevo API Rejected Request. Status Code: {}, Body: {}", response.statusCode(), response.body());
+                log.error("[EmailService] API Error Response. Status Code: {}, Body: {}", response.statusCode(), response.body());
                 throw new RuntimeException("Brevo native rejection: " + response.body());
             }
 
         } catch (Exception e) {
-            log.error("[EmailService] Native connection pipeline crash: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to send email via native execution pipeline", e);
+            log.error("[EmailService] Connection pipeline crash: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to send email via clean execution pipeline", e);
         }
     }
 
@@ -86,6 +90,7 @@ public class EmailService {
         executeApiMailRequest(to, "Expiry Reminder", htmlContent);
     }
 }
+
 
 
 
