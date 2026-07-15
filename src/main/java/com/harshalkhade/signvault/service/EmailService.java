@@ -2,20 +2,17 @@ package com.harshalkhade.signvault.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 
 @Service
 @Slf4j
 public class EmailService {
-
-    private final RestClient restClient;
 
     @Value("${signvault.brevo.api-key}")
     private String apiKey;
@@ -23,46 +20,46 @@ public class EmailService {
     @Value("${signvault.brevo.sender-email}")
     private String senderEmail;
 
-    public EmailService() {
-        this.restClient = RestClient.builder()
-                .baseUrl("https://brevo.com")
-                .build();
-    }
-
+    // Use pure native Java HttpClient, completely independent of Spring Boot framework hooks
+    private final HttpClient nativeClient = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(10))
+            .build();
 
     private void executeApiMailRequest(String to, String subject, String htmlContent) {
-        log.info("[EmailService] Key length: {}", apiKey != null ? apiKey.length() : "NULL");
-        log.info("[EmailService] Key starts with: {}", apiKey != null && apiKey.length() > 8 ? apiKey.substring(0, 8) : "NOTHING");
-
         try {
-            Map<String, Object> requestBody = Map.of(
-                    "sender", Map.of("name", "SignVault", "email", senderEmail),
-                    "to", List.of(Map.of("email", to)),
-                    "subject", subject,
-                    "htmlContent", htmlContent
-            );
+            log.info("[EmailService] Bypassing Spring framework. Dispatching pure native connection to Brevo.");
 
-            log.info("[EmailService] Sending API email to: {} using sender: {}", to, senderEmail);
+            // Manually escape backslashes and double quotes into clean JSON format strings
+            String safeHtmlContent = htmlContent.replace("\"", "\\\"");
 
-            restClient.post()
-                    .uri("/smtp/email")
+            String jsonPayload = "{"
+                    + "\"sender\":{\"name\":\"SignVault\",\"email\":\"" + senderEmail + "\"},"
+                    + "\"to\":[{\"email\":\"" + to + "\"}],"
+                    + "\"subject\":\"" + subject + "\","
+                    + "\"htmlContent\":\"" + safeHtmlContent + "\""
+                    + "}";
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://brevo.com"))
+                    .timeout(Duration.ofSeconds(10))
                     .header("api-key", apiKey)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(requestBody)
-                    .retrieve()
-                    // Aggressively capture any explicit error reason returned directly from Brevo
-                    .onStatus(HttpStatusCode::isError, (request, response) -> {
-                        byte[] bodyBytes = response.getBody().readAllBytes();
-                        String errorDetails = new String(bodyBytes, StandardCharsets.UTF_8);
-                        log.error("[EmailService] Brevo API Error Response: Status Code: {}, Body: {}", response.getStatusCode(), errorDetails);
-                        throw new RuntimeException("Brevo rejected transmission: " + errorDetails);
-                    })
-                    .toBodilessEntity();
+                    .header("Content-Type", "application/json")
+                    .header("Accept", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
+                    .build();
 
-            log.info("[EmailService] Email successfully delivered to: {}", to);
+            HttpResponse<String> response = nativeClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() >= 200 && response.statusCode() < 300) {
+                log.info("[EmailService] Email successfully delivered natively! Status: {}", response.statusCode());
+            } else {
+                log.error("[EmailService] Brevo API Rejected Request. Status Code: {}, Body: {}", response.statusCode(), response.body());
+                throw new RuntimeException("Brevo native rejection: " + response.body());
+            }
+
         } catch (Exception e) {
-            log.error("[EmailService] Crash during execution pipeline: {}", e.getMessage());
-            throw new RuntimeException("Failed to send email via Brevo Web API", e);
+            log.error("[EmailService] Native connection pipeline crash: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to send email via native execution pipeline", e);
         }
     }
 
@@ -79,7 +76,6 @@ public class EmailService {
                 "<p>Contract ID: <strong>" + contractId + "</strong></p>" +
                 "<p>Please login to SignVault to review and sign the contract.</p>" +
                 "<br><p>— SignVault Team</p>";
-
         executeApiMailRequest(to, "New Contract Received — " + contractTitle, htmlContent);
     }
 
@@ -87,10 +83,123 @@ public class EmailService {
     public void sendExpiryReminder(String to, String contractTitle, long daysLeft) {
         String htmlContent = "<h2>Your contract <strong>" + contractTitle + "</strong> is expiring soon!\n " +
                 "Only <strong>" + daysLeft + "</strong> days left.\n Renew it in the last 2 days!</h2>";
-
         executeApiMailRequest(to, "Expiry Reminder", htmlContent);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//package com.harshalkhade.signvault.service;
+//
+//import lombok.extern.slf4j.Slf4j;
+//import org.springframework.beans.factory.annotation.Value;
+//import org.springframework.http.HttpStatusCode;
+//import org.springframework.http.MediaType;
+//import org.springframework.scheduling.annotation.Async;
+//import org.springframework.stereotype.Service;
+//import org.springframework.web.client.RestClient;
+//import java.nio.charset.StandardCharsets;
+//import java.util.List;
+//import java.util.Map;
+//
+//@Service
+//@Slf4j
+//public class EmailService {
+//
+//    private final RestClient restClient;
+//
+//    @Value("${signvault.brevo.api-key}")
+//    private String apiKey;
+//
+//    @Value("${signvault.brevo.sender-email}")
+//    private String senderEmail;
+//
+//    public EmailService() {
+//        this.restClient = RestClient.builder()
+//                .baseUrl("https://brevo.com")
+//                .build();
+//    }
+//
+//
+//    private void executeApiMailRequest(String to, String subject, String htmlContent) {
+//        log.info("[EmailService] Key length: {}", apiKey != null ? apiKey.length() : "NULL");
+//        log.info("[EmailService] Key starts with: {}", apiKey != null && apiKey.length() > 8 ? apiKey.substring(0, 8) : "NOTHING");
+//
+//        try {
+//            Map<String, Object> requestBody = Map.of(
+//                    "sender", Map.of("name", "SignVault", "email", senderEmail),
+//                    "to", List.of(Map.of("email", to)),
+//                    "subject", subject,
+//                    "htmlContent", htmlContent
+//            );
+//
+//            log.info("[EmailService] Sending API email to: {} using sender: {}", to, senderEmail);
+//
+//            restClient.post()
+//                    .uri("/smtp/email")
+//                    .header("api-key", apiKey)
+//                    .contentType(MediaType.APPLICATION_JSON)
+//                    .body(requestBody)
+//                    .retrieve()
+//                    // Aggressively capture any explicit error reason returned directly from Brevo
+//                    .onStatus(HttpStatusCode::isError, (request, response) -> {
+//                        byte[] bodyBytes = response.getBody().readAllBytes();
+//                        String errorDetails = new String(bodyBytes, StandardCharsets.UTF_8);
+//                        log.error("[EmailService] Brevo API Error Response: Status Code: {}, Body: {}", response.getStatusCode(), errorDetails);
+//                        throw new RuntimeException("Brevo rejected transmission: " + errorDetails);
+//                    })
+//                    .toBodilessEntity();
+//
+//            log.info("[EmailService] Email successfully delivered to: {}", to);
+//        } catch (Exception e) {
+//            log.error("[EmailService] Crash during execution pipeline: {}", e.getMessage());
+//            throw new RuntimeException("Failed to send email via Brevo Web API", e);
+//        }
+//    }
+//
+//    public void sendOtpEmail(String to, String otp) {
+//        String htmlContent = "<h2>This is your OTP for Email service: </h2><h1>" + otp + "</h1>";
+//        executeApiMailRequest(to, "Email OTP verification", htmlContent);
+//    }
+//
+//    @Async
+//    public void sendContractNotification(String to, String senderName, String contractTitle, String contractId) {
+//        String htmlContent = "<h2>You have received a new contract on SignVault</h2>" +
+//                "<p><strong>" + senderName + "</strong> has sent you a contract titled " +
+//                "<strong>" + contractTitle + "</strong> for your review and signature.</p>" +
+//                "<p>Contract ID: <strong>" + contractId + "</strong></p>" +
+//                "<p>Please login to SignVault to review and sign the contract.</p>" +
+//                "<br><p>— SignVault Team</p>";
+//
+//        executeApiMailRequest(to, "New Contract Received — " + contractTitle, htmlContent);
+//    }
+//
+//    @Async
+//    public void sendExpiryReminder(String to, String contractTitle, long daysLeft) {
+//        String htmlContent = "<h2>Your contract <strong>" + contractTitle + "</strong> is expiring soon!\n " +
+//                "Only <strong>" + daysLeft + "</strong> days left.\n Renew it in the last 2 days!</h2>";
+//
+//        executeApiMailRequest(to, "Expiry Reminder", htmlContent);
+//    }
+//}
 
 
 
