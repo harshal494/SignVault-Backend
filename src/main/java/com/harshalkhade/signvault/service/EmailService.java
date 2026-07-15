@@ -29,10 +29,11 @@ public class EmailService {
                 .build();
     }
 
-    /**
-     * Internal helper method to execute HTTPS payload delivery to Brevo API v3
-     */
+
     private void executeApiMailRequest(String to, String subject, String htmlContent) {
+        log.info("[EmailService] Key length: {}", apiKey != null ? apiKey.length() : "NULL");
+        log.info("[EmailService] Key starts with: {}", apiKey != null && apiKey.length() > 8 ? apiKey.substring(0, 8) : "NOTHING");
+
         try {
             Map<String, Object> requestBody = Map.of(
                     "sender", Map.of("name", "SignVault", "email", senderEmail),
